@@ -1,18 +1,31 @@
+# Name of the workflow
 name: Build Executable
 
+# Run the workflow on pushes to the main branch
 on:
   push:
     branches: [ main ]
 
+# Jobs to run
 jobs:
   build:
+    # Use ubuntu runner with python-based container
+    #
+    # † Slim-bookworm variant uses debian:12.12 to
+    #   match the worker docker image version
     runs-on: ubuntu-latest
     container:
       image: python:3.11-slim-bookworm     
 
+    # Checkout the repository to access the source code
     steps:
     - uses: actions/checkout@v4
     
+    # Install all dependencies required for the workflow to run. These include
+    # - binutils (required for pyinstaller to work)
+    # - pip (latest version)
+    # - pyinstaller (to build the executable)
+    # - any python dependencies listed in requirements.txt (if the file exists)
     - name: Install dependencies
       run: |
         apt-get update && apt-get install -y binutils
@@ -20,9 +33,16 @@ jobs:
         pip install pyinstaller
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     
+    # Build the executable using pyinstaller
+    #
+    # TO CONFIGURE:
+    #  - Adjust the --paths argument to include any additional source code directories
+    #  - Adjust `main.py` to your entrypoint file     
     - name: Build executable
       run: pyinstaller --onefile --paths rxmockup --name executable main.py
     
+    # Upload the build executable as an artifact which can be downloaded
+    # from the GitHub Actions interface later (for 30 days).
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:

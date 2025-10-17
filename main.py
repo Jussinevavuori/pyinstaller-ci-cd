@@ -4,10 +4,14 @@ import os
 from rxmockup.main import run 
 
 def dir_path(string):
+    # Create the directory if it doesn't exist
+    if not os.path.exists(string):
+        os.makedirs(string, exist_ok=True)
+    
     if os.path.isdir(string):
         return string
     else:
-        raise NotADirectoryError(string)
+        raise NotADirectoryError(f"Unable to create or access directory: {string}")
 
 def parse_args():
     parser = argparse.ArgumentParser(description="rxmockup")
