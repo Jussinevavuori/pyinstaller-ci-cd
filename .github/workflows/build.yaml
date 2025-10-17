@@ -9,12 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: python:3.11-slim-bookworm     
-         
+
     steps:
     - uses: actions/checkout@v4
     
     - name: Install dependencies
       run: |
+        apt-get update && apt-get install -y binutils
         python -m pip install --upgrade pip
         pip install pyinstaller
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
