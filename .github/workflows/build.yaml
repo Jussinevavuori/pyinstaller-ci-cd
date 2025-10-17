@@ -50,13 +50,13 @@ jobs:
     # Automatically compute a version string based on the current date and GitHub run number
     # and copy the built executable to a versioned filename.
     #
-    # Example filename: executable-2024-06-15-v42-linux-x86-64
+    # Example filename: executable-v2024.06.15-42-linux-x86_64
     - name: Compute version and copy binary
       id: meta
       run: |
-        VERSION="-$(date -u +%Y-%m-%d)-v${GITHUB_RUN_NUMBER}"
+        VERSION="v$(date -u +%Y.%m.%d)-${GITHUB_RUN_NUMBER}-linux-x86_64"
         echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-        cp dist/executable "dist/executable-${VERSION}-linux-x86-64"
+        cp dist/executable "dist/executable-${VERSION}"
     
     # Upload the build sexecutable as an artifact which can be downloaded
     # from the GitHub Actions interface later (for 30 days).
