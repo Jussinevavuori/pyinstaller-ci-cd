@@ -8,15 +8,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: debian:12.12
-          
+      image: python:3.11-slim-bookworm     
+         
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.x'
     
     - name: Install dependencies
       run: |
