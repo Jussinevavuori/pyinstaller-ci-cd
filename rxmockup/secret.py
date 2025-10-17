@@ -28,7 +28,7 @@ def generate_multi_cyl_reactors(output_file_directory, phi_df, reactor_purpose, 
     inductance_mH = required_inductance  # Assuming required_inductance is already in mH
     inductiveReactanceAtBaseFrequency_ohm = 2 * np.pi * base_frequency * (inductance_mH / 1000)  # Convert mH to H
     numberOfCylinders = min(max_n_cylinders, 3)  # Use constraint or default to 3
-    totalHeight_m = min(max_height, 2.5)  # Use constraint or default to 2.5m
+    totalHeight_m = min(max_height, 2.3)  # Use constraint or default to 2.3m
     totalWidth_m = min(max_width, 1.8)  # Use constraint or default to 1.8m
     totalMass_kg = min(max_mass, 500.0)  # Use constraint or default to 500kg
     materialCost = 15000.0  # Placeholder material cost
