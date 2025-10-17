@@ -55,9 +55,9 @@ jobs:
     - name: Compute version and copy binary
       id: meta
       run: |
-        VERSION="v$(date -u +%Y.%m.%d)-${GITHUB_RUN_NUMBER}-linux-x86_64"
+        VERSION="design-reactor.v$(date -u +%Y.%m.%d)-${GITHUB_RUN_NUMBER}-linux-x86_64"
         echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-        cp dist/design-reactor "dist/design-reactor-${VERSION}"
+        cp dist/design-reactor "dist/executable.${VERSION}"
     
     # Upload the build sexecutable as an artifact which can be downloaded
     # from the GitHub Actions interface later (for 30 days).
