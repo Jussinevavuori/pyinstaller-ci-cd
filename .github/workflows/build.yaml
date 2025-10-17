@@ -35,13 +35,30 @@ jobs:
     
     # Build the executable using pyinstaller
     #
+    #============================
+    #
     # TO CONFIGURE:
+    #
     #  - Adjust the --paths argument to include any additional source code directories
     #  - Adjust `main.py` to your entrypoint file     
+    #
+    #============================
+    #
     - name: Build executable
       run: pyinstaller --onefile --paths rxmockup --name executable main.py
+
+    # Automatically compute a version string based on the current date and GitHub run number
+    # and copy the built executable to a versioned filename.
+    #
+    # Example filename: executable-2024-06-15-v42-linux-x86-64
+    - name: Compute version and copy binary
+      id: meta
+      run: |
+        VERSION="-$(date -u +%Y-%m-%d)-v${GITHUB_RUN_NUMBER}"
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        cp dist/executable "dist/executable-${VERSION}-linux-x86-64"
     
-    # Upload the build executable as an artifact which can be downloaded
+    # Upload the build sexecutable as an artifact which can be downloaded
     # from the GitHub Actions interface later (for 30 days).
     - name: Upload artifact
       uses: actions/upload-artifact@v4
@@ -49,3 +66,37 @@ jobs:
         name: executable-${{ github.sha }}
         path: dist/executable
         retention-days: 30
+      
+    # Publish to a private repository as a release asset.
+    #
+    #============================
+    #
+    # TO CONFIGURE:
+    #
+    #  - Set `repository` to the target private repository (e.g. your-org/example-repo)
+    #  - Create a Personal Access Token (PAT)
+    #      1. Go to https://github.com/settings/personal-access-tokens
+    #      2. Click on "Generate new token".
+    #      3. Give a descriptive name and description.
+    #      4. Select repository access as "Only select repositories" and choose your target repo.
+    #      5. Set expiration as desired (safe to set to "Do not expire" for this use case).
+    #      6. Give "Contents" and "Pull requests" permission with "Read and write" access.
+    #      7. Click "Generate token" and copy the token (you won't see it again).
+    #  - Store the PAT as a secret named `TARGET_REPO_TOKEN` in THIS repository:
+    #      1. Navigate to your repository on GitHub.
+    #      2. Go to Settings > Secrets and variables > Actions.
+    #      3. Click on "New repository secret".
+    #      4. Name it `TARGET_REPO_TOKEN` and paste the PAT as the value.
+    #
+    #============================
+    #
+    - name: Publish to private release repository
+      uses: softprops/action-gh-release@v2
+      with:
+        repository: Jussinevavuori/pyinstaller-ci-cd-release
+        token: ${{ secrets.TARGET_REPO_TOKEN }}
+        tag_name: ${{ steps.meta.outputs.version }}
+        name: ${{ steps.meta.outputs.version }}
+        body: "Automated build from ${{ github.repository }}@${{ github.sha }}"
+        files: |
+          dist/executable-${{ steps.meta.outputs.version }}-linux-x86_64
