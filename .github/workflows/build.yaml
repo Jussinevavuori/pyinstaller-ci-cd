@@ -45,7 +45,8 @@ jobs:
     #============================
     #
     - name: Build executable
-      run: pyinstaller --onefile --paths rxmockup --name executable main.py
+      # TODO: Adjust paths and entrypoint as needed
+      run: pyinstaller --onefile --paths rxmockup --name design-reactor main.py
 
     # Automatically compute a version string based on the current date and GitHub run number
     # and copy the built executable to a versioned filename.
@@ -56,15 +57,15 @@ jobs:
       run: |
         VERSION="v$(date -u +%Y.%m.%d)-${GITHUB_RUN_NUMBER}-linux-x86_64"
         echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-        cp dist/executable "dist/executable-${VERSION}"
+        cp dist/design-reactor "dist/design-reactor-${VERSION}"
     
     # Upload the build sexecutable as an artifact which can be downloaded
     # from the GitHub Actions interface later (for 30 days).
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: executable-${{ github.sha }}
-        path: dist/executable
+        name: design-reactor-${{ github.sha }}
+        path: dist/design-reactor
         retention-days: 30
       
     # Publish to a private repository as a release asset.
@@ -73,7 +74,9 @@ jobs:
     #
     # TO CONFIGURE:
     #
-    #  - Set `repository` to the target private repository (e.g. your-org/example-repo)
+    #  - Create a new target private repository to host the releases (e.g. your-org/releases)
+    #      1. Ensure it is NOT empty (must have e.g. a README.md)
+    #  - Set `repository` below to the target private repository (e.g. your-org/releases)
     #  - Create a Personal Access Token (PAT)
     #      1. Go to https://github.com/settings/personal-access-tokens
     #      2. Click on "Generate new token".
@@ -93,10 +96,10 @@ jobs:
     - name: Publish to private release repository
       uses: softprops/action-gh-release@v2
       with:
-        repository: Jussinevavuori/pyinstaller-ci-cd-release
+        repository: Jussinevavuori/pyinstaller-ci-cd-release # TODO: Change to your target repo
         token: ${{ secrets.TARGET_REPO_TOKEN }}
         tag_name: ${{ steps.meta.outputs.version }}
         name: ${{ steps.meta.outputs.version }}
         body: "Automated build from ${{ github.repository }}@${{ github.sha }}"
         files: |
-          dist/executable-${{ steps.meta.outputs.version }}-linux-x86_64
+          dist/design-reactor-${{ steps.meta.outputs.version }}
