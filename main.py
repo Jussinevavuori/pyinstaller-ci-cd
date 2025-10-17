@@ -17,6 +17,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="rxmockup")
     parser.add_argument('--input', dest="json", type=str, required=True, help='JSON input string')
     parser.add_argument('--output-files-dir', dest="output_file_dir", type=dir_path, required=True, help='Directory for produced files')
+    parser.add_argument('--calibration-parameters', dest="calibration_parameters", type=str, required=False, help='Optional JSON string for calibration parameters')
     return parser.parse_args()
 
 def main():
