@@ -6,8 +6,10 @@ on:
 
 jobs:
   build:
-    runs-on: debian:12.12
-    
+    runs-on: ubuntu-latest
+    container:
+      image: debian:12.12
+          
     steps:
     - uses: actions/checkout@v4
     
