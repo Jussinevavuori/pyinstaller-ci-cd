@@ -56,7 +56,7 @@ jobs:
       id: meta
       run: |
         EXECUTABLE="design-reactor.v$(date -u +%Y.%m.%d)-${GITHUB_RUN_NUMBER}-linux-x86_64"
-        echo "version=$EXECUTABLE" >> "$GITHUB_OUTPUT"
+        echo "executable=$EXECUTABLE" >> "$GITHUB_OUTPUT"
         cp dist/design-reactor "dist/${EXECUTABLE}"
     
     # Upload the build sexecutable as an artifact which can be downloaded
