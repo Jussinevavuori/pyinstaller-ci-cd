@@ -8,7 +8,9 @@ on:
 
 # Jobs to run
 jobs:
-  build:
+
+  # This job builds and uploads the `design-reactor` executable
+  build-design-reactor:
     # Use ubuntu runner with python-based container
     #
     # † Slim-bookworm variant uses debian:12.12 to
@@ -40,13 +42,13 @@ jobs:
     # TO CONFIGURE:
     #
     #  - Adjust the --paths argument to include any additional source code directories
-    #  - Adjust `main.py` to your entrypoint file     
+    #  - Adjust `design-reactor.py` to your entrypoint file     
     #
     #============================
     #
     - name: Build executable
       # TODO: Adjust paths and entrypoint as needed
-      run: pyinstaller --onefile --paths rxmockup --name design-reactor main.py
+      run: pyinstaller --onefile --paths rxmockup --name design-reactor design-reactor.py
 
     # Automatically compute a version string based on the current date and GitHub run number
     # and copy the built executable to a versioned filename.
@@ -65,6 +67,103 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: design-reactor-${{ github.sha }}
+        path: dist/${{ steps.meta.outputs.executable }}
+        retention-days: 30
+      
+    # Publish to a private repository as a release asset.
+    #
+    #============================
+    #
+    # TO CONFIGURE:
+    #
+    #  - Create a new target private repository to host the releases (e.g. your-org/releases)
+    #      1. Ensure it is NOT empty (must have e.g. a README.md)
+    #  - Set `repository` below to the target private repository (e.g. your-org/releases)
+    #  - Create a Personal Access Token (PAT)
+    #      1. Go to https://github.com/settings/personal-access-tokens
+    #      2. Click on "Generate new token".
+    #      3. Give a descriptive name and description.
+    #      4. Select repository access as "Only select repositories" and choose your target repo.
+    #      5. Set expiration as desired (safe to set to "Do not expire" for this use case).
+    #      6. Give "Contents" and "Pull requests" permission with "Read and write" access.
+    #      7. Click "Generate token" and copy the token (you won't see it again).
+    #  - Store the PAT as a secret named `TARGET_REPO_TOKEN` in THIS repository:
+    #      1. Navigate to your repository on GitHub.
+    #      2. Go to Settings > Secrets and variables > Actions.
+    #      3. Click on "New repository secret".
+    #      4. Name it `TARGET_REPO_TOKEN` and paste the PAT as the value.
+    #
+    #============================
+    #
+    - name: Publish to private release repository
+      uses: softprops/action-gh-release@v2
+      with:
+        repository: Jussinevavuori/pyinstaller-ci-cd-release # TODO: Change to your target repo
+        token: ${{ secrets.TARGET_REPO_TOKEN }}
+        tag_name: ${{ steps.meta.outputs.executable }}
+        name: ${{ steps.meta.outputs.executable }}
+        body: "Automated build from ${{ github.repository }}@${{ github.sha }}"
+        files: |
+          dist/${{ steps.meta.outputs.executable }}
+  
+  # This job builds and uploads the `calibrate` executable
+  build-calibrate:
+    # Use ubuntu runner with python-based container
+    #
+    # † Slim-bookworm variant uses debian:12.12 to
+    #   match the worker docker image version
+    runs-on: ubuntu-latest
+    container:
+      image: python:3.11-slim-bookworm     
+
+    # Checkout the repository to access the source code
+    steps:
+    - uses: actions/checkout@v4
+    
+    # Install all dependencies required for the workflow to run. These include
+    # - binutils (required for pyinstaller to work)
+    # - pip (latest version)
+    # - pyinstaller (to build the executable)
+    # - any python dependencies listed in requirements.txt (if the file exists)
+    - name: Install dependencies
+      run: |
+        apt-get update && apt-get install -y binutils
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    
+    # Build the executable using pyinstaller
+    #
+    #============================
+    #
+    # TO CONFIGURE:
+    #
+    #  - Adjust the --paths argument to include any additional source code directories
+    #  - Adjust `calibrate.py` to your entrypoint file     
+    #
+    #============================
+    #
+    - name: Build executable
+      # TODO: Adjust paths and entrypoint as needed
+      run: pyinstaller --onefile --paths rxmockup --name calibrate calibrate.py
+
+    # Automatically compute a version string based on the current date and GitHub run number
+    # and copy the built executable to a versioned filename.
+    #
+    # Example filename: executable.v42.2024-06-15.linux-x86_64
+    - name: Compute version and copy binary
+      id: meta
+      run: |
+        EXECUTABLE="calibrate.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d).linux-x86_64"
+        echo "executable=$EXECUTABLE" >> "$GITHUB_OUTPUT"
+        cp dist/calibrate "dist/${EXECUTABLE}"
+    
+    # Upload the build sexecutable as an artifact which can be downloaded
+    # from the GitHub Actions interface later (for 30 days).
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: calibrate-${{ github.sha }}
         path: dist/${{ steps.meta.outputs.executable }}
         retention-days: 30
       
