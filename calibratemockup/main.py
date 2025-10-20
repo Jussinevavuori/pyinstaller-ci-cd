@@ -26,4 +26,4 @@ def run(measurements):
     """Return calibration metrics derived from a collection of measurements."""
     values = _normalize_estimations(measurements)
     average_sum = _compute_average(values)
-    return {"average_sum": average_sum}
+    return {"values":{"average_sum": average_sum}}
