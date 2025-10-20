@@ -98,8 +98,8 @@ jobs:
       with:
         repository: Jussinevavuori/pyinstaller-ci-cd-release # TODO: Change to your target repo
         token: ${{ secrets.TARGET_REPO_TOKEN }}
-        tag_name: ${{ steps.meta.outputs.version }}
-        name: ${{ steps.meta.outputs.version }}
+        tag_name: ${{ steps.meta.outputs.executable }}
+        name: ${{ steps.meta.outputs.executable }}
         body: "Automated build from ${{ github.repository }}@${{ github.sha }}"
         files: |
           dist/${{ steps.meta.outputs.executable }}
