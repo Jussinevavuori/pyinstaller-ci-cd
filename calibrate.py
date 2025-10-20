@@ -6,8 +6,8 @@ from calibratemockup import run
 def parse_args():
     parser = argparse.ArgumentParser(description="calibratemockup")
     parser.add_argument(
-        "--estimations",
-        dest="estimations",
+        "--measurements",
+        dest="measurements",
         type=str,
         required=True,
         help="JSON array of estimation values",
@@ -19,14 +19,14 @@ def main():
     args = parse_args()
 
     try:
-        estimations = json.loads(args.estimations)
+        measurements = json.loads(args.measurements)
     except json.JSONDecodeError as exc:
-        raise SystemExit(f"Invalid JSON for --estimations: {exc}")
+        raise SystemExit(f"Invalid JSON for --measurements: {exc}")
 
-    if not isinstance(estimations, list):
-        raise SystemExit("The --estimations argument must be a JSON array.")
+    if not isinstance(measurements, list):
+        raise SystemExit("The --measurements argument must be a JSON array.")
 
-    result = run(estimations)
+    result = run(measurements)
     print(json.dumps(result))
 
 
