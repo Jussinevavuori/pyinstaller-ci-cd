@@ -55,9 +55,9 @@ jobs:
     - name: Compute version and copy binary
       id: meta
       run: |
-        VERSION="design-reactor.v$(date -u +%Y.%m.%d)-${GITHUB_RUN_NUMBER}-linux-x86_64"
-        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-        cp dist/design-reactor "dist/executable.${VERSION}"
+        EXECUTABLE="design-reactor.v$(date -u +%Y.%m.%d)-${GITHUB_RUN_NUMBER}-linux-x86_64"
+        echo "version=$EXECUTABLE" >> "$GITHUB_OUTPUT"
+        cp dist/design-reactor "dist/${EXECUTABLE}"
     
     # Upload the build sexecutable as an artifact which can be downloaded
     # from the GitHub Actions interface later (for 30 days).
@@ -65,7 +65,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: design-reactor-${{ github.sha }}
-        path: dist/design-reactor
+        path: dist/${{ steps.meta.outputs.executable }}
         retention-days: 30
       
     # Publish to a private repository as a release asset.
@@ -102,4 +102,4 @@ jobs:
         name: ${{ steps.meta.outputs.version }}
         body: "Automated build from ${{ github.repository }}@${{ github.sha }}"
         files: |
-          dist/design-reactor-${{ steps.meta.outputs.version }}
+          dist/${{ steps.meta.outputs.executable }}
