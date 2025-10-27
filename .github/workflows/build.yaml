@@ -51,14 +51,19 @@ jobs:
     # Automatically compute a version string based on the current date and GitHub run number
     # and copy the built executable to a versioned filename.
     #
+    # Example tagname:
+    # - design-reactor.v42.2024-06-15
+    #
     # Example filenames:
     # - design-reactor.v42.2024-06-15.exe
     # - design-reactor.v42.2024-06-15.requirements.txt
     - name: Compute version and copy binary
       id: meta
       run: |
-        EXECUTABLE="design-reactor.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d).exe"
-        REQUIREMENTS="design-reactor.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d).requirements.txt"
+        TAG_NAME="design-reactor.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d)"
+        EXECUTABLE="${TAG_NAME}.exe"
+        REQUIREMENTS="${TAG_NAME}.requirements.txt"
+        echo "tagName=$TAG_NAME" >> "$GITHUB_OUTPUT"
         echo "executable=$EXECUTABLE" >> "$GITHUB_OUTPUT"
         echo "requirements=$REQUIREMENTS" >> "$GITHUB_OUTPUT"
         cp dist/design-reactor "dist/${EXECUTABLE}"
@@ -105,8 +110,8 @@ jobs:
       with:
         repository: Jussinevavuori/pyinstaller-ci-cd-release # TODO: Change to your target repo
         token: ${{ secrets.TARGET_REPO_TOKEN }}
-        tag_name: ${{ steps.meta.outputs.executable }}
-        name: ${{ steps.meta.outputs.executable }}
+        tag_name: ${{ steps.meta.outputs.tagName }}
+        name: ${{ steps.meta.outputs.tagName }}
         body: "Automated build from ${{ github.repository }}@${{ github.sha }}"
         files: |
           dist/${{ steps.meta.outputs.executable }}
@@ -154,14 +159,19 @@ jobs:
     # Automatically compute a version string based on the current date and GitHub run number
     # and copy the built executable to a versioned filename.
     #
+    # Example tagname:
+    # - calibrate.v42.2024-06-15
+    #
     # Example filenames:
     # - calibrate.v42.2024-06-15.exe
     # - calibrate.v42.2024-06-15.requirements.txt
     - name: Compute version and copy binary
       id: meta
       run: |
-        EXECUTABLE="calibrate.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d).exe"
-        REQUIREMENTS="calibrate.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d).requirements.txt"
+        TAG_NAME="calibrate.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d)"
+        EXECUTABLE="${TAG_NAME}.exe"
+        REQUIREMENTS="${TAG_NAME}.requirements.txt"
+        echo "tagName=$TAG_NAME" >> "$GITHUB_OUTPUT"
         echo "executable=$EXECUTABLE" >> "$GITHUB_OUTPUT"
         echo "requirements=$REQUIREMENTS" >> "$GITHUB_OUTPUT"
         cp dist/calibrate "dist/${EXECUTABLE}"
@@ -208,8 +218,8 @@ jobs:
       with:
         repository: Jussinevavuori/pyinstaller-ci-cd-release # TODO: Change to your target repo
         token: ${{ secrets.TARGET_REPO_TOKEN }}
-        tag_name: ${{ steps.meta.outputs.executable }}
-        name: ${{ steps.meta.outputs.executable }}
+        tag_name: ${{ steps.meta.outputs.tagName }}
+        name: ${{ steps.meta.outputs.tagName }}
         body: "Automated build from ${{ github.repository }}@${{ github.sha }}"
         files: |
           dist/${{ steps.meta.outputs.executable }}
