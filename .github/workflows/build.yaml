@@ -51,13 +51,18 @@ jobs:
     # Automatically compute a version string based on the current date and GitHub run number
     # and copy the built executable to a versioned filename.
     #
-    # Example filename: executable.v42.2024-06-15.linux-x86_64
+    # Example filenames:
+    # - design-reactor.v42.2024-06-15.exe
+    # - design-reactor.v42.2024-06-15.requirements.txt
     - name: Compute version and copy binary
       id: meta
       run: |
-        EXECUTABLE="design-reactor.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d).linux-x86_64"
+        EXECUTABLE="design-reactor.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d).exe"
+        REQUIREMENTS="design-reactor.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d).requirements.txt"
         echo "executable=$EXECUTABLE" >> "$GITHUB_OUTPUT"
+        echo "requirements=$REQUIREMENTS" >> "$GITHUB_OUTPUT"
         cp dist/design-reactor "dist/${EXECUTABLE}"
+        cp requirements.txt "dist/${REQUIREMENTS}"
     
     # Upload the build sexecutable as an artifact which can be downloaded
     # from the GitHub Actions interface later (for 30 days).
@@ -65,7 +70,9 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: design-reactor-${{ github.sha }}
-        path: dist/${{ steps.meta.outputs.executable }}
+        path: |
+          dist/${{ steps.meta.outputs.executable }}
+          dist/${{ steps.meta.outputs.requirements }}
         retention-days: 30
       
     # Publish to a private repository as a release asset.
@@ -103,6 +110,7 @@ jobs:
         body: "Automated build from ${{ github.repository }}@${{ github.sha }}"
         files: |
           dist/${{ steps.meta.outputs.executable }}
+          dist/${{ steps.meta.outputs.requirements }}
   
   # This job builds and uploads the `calibrate` executable
   build-calibrate:
@@ -146,13 +154,18 @@ jobs:
     # Automatically compute a version string based on the current date and GitHub run number
     # and copy the built executable to a versioned filename.
     #
-    # Example filename: executable.v42.2024-06-15.linux-x86_64
+    # Example filenames:
+    # - calibrate.v42.2024-06-15.exe
+    # - calibrate.v42.2024-06-15.requirements.txt
     - name: Compute version and copy binary
       id: meta
       run: |
-        EXECUTABLE="calibrate.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d).linux-x86_64"
+        EXECUTABLE="calibrate.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d).exe"
+        REQUIREMENTS="calibrate.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d).requirements.txt"
         echo "executable=$EXECUTABLE" >> "$GITHUB_OUTPUT"
+        echo "requirements=$REQUIREMENTS" >> "$GITHUB_OUTPUT"
         cp dist/calibrate "dist/${EXECUTABLE}"
+        cp requirements.txt "dist/${REQUIREMENTS}"
     
     # Upload the build sexecutable as an artifact which can be downloaded
     # from the GitHub Actions interface later (for 30 days).
@@ -160,7 +173,9 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: calibrate-${{ github.sha }}
-        path: dist/${{ steps.meta.outputs.executable }}
+        path: |
+          dist/${{ steps.meta.outputs.executable }}
+          dist/${{ steps.meta.outputs.requirements }}
         retention-days: 30
       
     # Publish to a private repository as a release asset.
@@ -198,3 +213,4 @@ jobs:
         body: "Automated build from ${{ github.repository }}@${{ github.sha }}"
         files: |
           dist/${{ steps.meta.outputs.executable }}
+          dist/${{ steps.meta.outputs.requirements }}
