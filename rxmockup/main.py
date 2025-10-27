@@ -19,9 +19,9 @@ def run(json_input_data, output_file_directory):
 
     warehouse_database = json_input_data["snapshots"]["warehouse"]["items"]
     manufacturing_constraints = json_input_data["snapshots"]["constraintSet"]["constraints"]
-    user_defined_max_height = json_input_data["maxHeight_m"]
-    user_defined_max_width = json_input_data["maxWidth_m"]
-    user_defined_max_mass = json_input_data["maxMass_kg"]
+		user_defined_max_height = json_input_data.get("maxHeight_m")
+		user_defined_max_width = json_input_data.get("maxWidth_m")
+		user_defined_max_mass = json_input_data.get("maxMass_kg")
 
     start_time = time.time()
     output_json_str = secret.generate_multi_cyl_reactors(output_file_directory, PHI_DF, reactor_purpose, inductance, inductance_positive_tolerance_percent, inductance_negative_tolerance_percent, nominal_voltage, required_BIL, nominal_current, harmonic_spectrum, pollution_class, base_frequency, warehouse_database, manufacturing_constraints, user_defined_max_width, user_defined_max_height, user_defined_max_mass, 15)
