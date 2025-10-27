@@ -46,7 +46,7 @@ jobs:
       # TODO: Adjust main module and source directory as needed
       run: |
         mkdir -p dist
-        python -m zipapp . --output dist/design-reactor --main design-reactor:main --python "/usr/bin/env python3"
+        python -m zipapp . --output dist/design-reactor --main design_reactor:main --python "/usr/bin/env python3"
 
     # Automatically compute a version string based on the current date and GitHub run number
     # and copy the built executable to a versioned filename.
