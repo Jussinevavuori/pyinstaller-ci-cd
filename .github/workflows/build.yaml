@@ -17,38 +17,36 @@ jobs:
     #   match the worker docker image version
     runs-on: ubuntu-latest
     container:
-      image: python:3.11-slim-bookworm     
+      image: python:3.11-slim-bookworm
 
     # Checkout the repository to access the source code
     steps:
     - uses: actions/checkout@v4
     
     # Install all dependencies required for the workflow to run. These include
-    # - binutils (required for pyinstaller to work)
     # - pip (latest version)
-    # - pyinstaller (to build the executable)
     # - any python dependencies listed in requirements.txt (if the file exists)
     - name: Install dependencies
       run: |
-        apt-get update && apt-get install -y binutils
         python -m pip install --upgrade pip
-        pip install pyinstaller
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    
-    # Build the executable using pyinstaller
+      
+    # Build the executable using zipapp
     #
     #============================
     #
     # TO CONFIGURE:
     #
-    #  - Adjust the --paths argument to include any additional source code directories
-    #  - Adjust `design-reactor.py` to your entrypoint file     
+    #  - Adjust the --main argument to your entrypoint module
+    #  - Adjust source directory as needed     
     #
     #============================
     #
     - name: Build executable
-      # TODO: Adjust paths and entrypoint as needed
-      run: pyinstaller --onefile --paths rxmockup --name design-reactor design-reactor.py
+      # TODO: Adjust main module and source directory as needed
+      run: |
+        mkdir -p dist
+        python -m zipapp rxmockup --output dist/design-reactor --main design-reactor:main --python "/usr/bin/env python3"
 
     # Automatically compute a version string based on the current date and GitHub run number
     # and copy the built executable to a versioned filename.
@@ -121,31 +119,29 @@ jobs:
     - uses: actions/checkout@v4
     
     # Install all dependencies required for the workflow to run. These include
-    # - binutils (required for pyinstaller to work)
     # - pip (latest version)
-    # - pyinstaller (to build the executable)
     # - any python dependencies listed in requirements.txt (if the file exists)
     - name: Install dependencies
       run: |
-        apt-get update && apt-get install -y binutils
         python -m pip install --upgrade pip
-        pip install pyinstaller
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    
-    # Build the executable using pyinstaller
+      
+    # Build the executable using zipapp
     #
     #============================
     #
     # TO CONFIGURE:
     #
-    #  - Adjust the --paths argument to include any additional source code directories
-    #  - Adjust `calibrate.py` to your entrypoint file     
+    #  - Adjust the --main argument to your entrypoint module
+    #  - Adjust source directory as needed     
     #
     #============================
     #
     - name: Build executable
-      # TODO: Adjust paths and entrypoint as needed
-      run: pyinstaller --onefile --paths rxmockup --name calibrate calibrate.py
+      # TODO: Adjust main module and source directory as needed
+      run: |
+        mkdir -p dist
+        python -m zipapp rxmockup --output dist/calibrate --main calibrate:main --python "/usr/bin/env python3"
 
     # Automatically compute a version string based on the current date and GitHub run number
     # and copy the built executable to a versioned filename.
