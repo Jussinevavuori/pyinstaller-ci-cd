@@ -44,5 +44,5 @@ def generate_multi_cyl_reactors(output_file_directory, phi_df, reactor_purpose, 
         "materialCost": materialCost,
         "totalLifetimeCost": totalLifetimeCost
     }
-    output_json_str = json.dumps(obj={"output": output, "files": [{"filepath": output_pdf_filepath, "filetype": output_pdf_type, "purpose": output_pdf_purpose}], indent=4)
+    output_json_str = json.dumps(obj={"output": output, "files": [{"filepath": output_pdf_filepath, "filetype": output_pdf_type, "purpose": output_pdf_purpose}]}, indent=4)
     return output_json_str
