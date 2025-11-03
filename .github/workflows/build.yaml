@@ -17,8 +17,8 @@ jobs:
         # name:    The OS name used in the version string
         # image:   The GitHub Actions OS image to use
         os:
-          - { name: ubuntu, image: ubuntu-latest }
-          - { name: macos, image: macos-latest }
+          - { name: linux, image: ubuntu-latest }
+          # - { name: macos, image: macos-latest }
           # - { name: windows, image: windows-latest }
         # Define the vendor scripts to build
         # script:  The python entry point to build
