@@ -25,7 +25,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.14'
-          architecture: 'x86'
+          architecture: 'x64'
           cache: 'pip'
 
       # Checkout the repository to access the source code
@@ -131,7 +131,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.14'
-          architecture: 'x86'
+          architecture: 'x64'
           cache: 'pip'
 
       # Checkout the repository to access the source code
