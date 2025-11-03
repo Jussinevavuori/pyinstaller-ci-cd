@@ -13,16 +13,22 @@ jobs:
     # Define a matrix to build each target for multiple operating systems
     strategy:
       matrix:
+        # Define the operating systems to build for
+        # name:    The OS name used in the version string
+        # image:   The GitHub Actions OS image to use
         os:
           - { name: ubuntu, image: ubuntu-latest }
           - { name: macos, image: macos-latest }
-          - { name: windows, image: windows-latest }
+          # - { name: windows, image: windows-latest }
+        # Define the vendor scripts to build
+        # script:  The python entry point to build
+        # base:    The base name for the output files
         target:
           - { script: design_reactor.py, base: design-reactor }
           - { script: calibrate.py, base: calibrate }
 
-  # Use the OS image from the matrix
-  runs-on: ${{ matrix.os.image }}
+    # Use the OS image from the matrix
+    runs-on: ${{ matrix.os.image }}
 
     # Job steps
     steps:
