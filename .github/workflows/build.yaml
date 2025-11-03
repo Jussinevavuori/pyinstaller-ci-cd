@@ -9,222 +9,219 @@ on:
 # Jobs to run
 jobs:
 
+  ##################################################################################################
+
   # This job builds and uploads the `design-reactor` executable
   build-design-reactor:
-    # Use ubuntu runner with python-based container
-    #
-    # † Slim-bookworm variant uses debian:12.12 to
-    #   match the worker docker image version
+
+    # Use ubuntu runner
     runs-on: ubuntu-latest
-    container:
-      image: python:3.11-slim-bookworm
 
-    # Checkout the repository to access the source code
+    # Job steps
     steps:
-    - uses: actions/checkout@v4
-    
-    # Install all dependencies required for the workflow to run. These include
-    # - pip (latest version)
-    # - any python dependencies listed in requirements.txt (if the file exists)
-    # - nuitka 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        pip install nuitka
-      
-    # Build the executable using nuitka
-    #
-    #============================
-    #
-    # TO CONFIGURE:
-    #
-    #  - Adjust the --main argument to your entrypoint module
-    #  - Adjust source directory as needed     
-    #
-    #============================
-    #
-    - name: Build executable
-      # TODO: Adjust main module and source directory as needed
-      run: |
-        mkdir -p dist
-        python -m nuitka . --standalone --onefile --output-dir=dist/design-reactor --follow-imports --remove-output design_reactor
 
-    # Automatically compute a version string based on the current date and GitHub run number
-    # and copy the built executable to a versioned filename.
-    #
-    # Example tagname:
-    # - design-reactor.v42.2024-06-15
-    #
-    # Example filenames:
-    # - design-reactor.v42.2024-06-15.exe
-    # - design-reactor.v42.2024-06-15.requirements.txt
-    - name: Compute version and copy binary
-      id: meta
-      run: |
-        TAG_NAME="design-reactor.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d)"
-        EXECUTABLE="${TAG_NAME}.exe"
-        REQUIREMENTS="${TAG_NAME}.requirements.txt"
-        echo "tagName=$TAG_NAME" >> "$GITHUB_OUTPUT"
-        echo "executable=$EXECUTABLE" >> "$GITHUB_OUTPUT"
-        echo "requirements=$REQUIREMENTS" >> "$GITHUB_OUTPUT"
-        cp dist/design-reactor "dist/${EXECUTABLE}"
-        cp requirements.txt "dist/${REQUIREMENTS}"
-    
-    # Upload the build sexecutable as an artifact which can be downloaded
-    # from the GitHub Actions interface later (for 30 days).
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: design-reactor-${{ github.sha }}
-        path: |
-          dist/${{ steps.meta.outputs.executable }}
-          dist/${{ steps.meta.outputs.requirements }}
-        retention-days: 30
+      # Setup Python environment
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+          architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+          cache: 'pip'
+          cache-dependency-path: |
+            **/requirements*.txt
+
+      # Checkout the repository to access the source code
+      - uses: actions/checkout@v4
       
-    # Publish to a private repository as a release asset.
-    #
-    #============================
-    #
-    # TO CONFIGURE:
-    #
-    #  - Create a new target private repository to host the releases (e.g. your-org/releases)
-    #      1. Ensure it is NOT empty (must have e.g. a README.md)
-    #  - Set `repository` below to the target private repository (e.g. your-org/releases)
-    #  - Create a Personal Access Token (PAT)
-    #      1. Go to https://github.com/settings/personal-access-tokens
-    #      2. Click on "Generate new token".
-    #      3. Give a descriptive name and description.
-    #      4. Select repository access as "Only select repositories" and choose your target repo.
-    #      5. Set expiration as desired (safe to set to "Do not expire" for this use case).
-    #      6. Give "Contents" and "Pull requests" permission with "Read and write" access.
-    #      7. Click "Generate token" and copy the token (you won't see it again).
-    #  - Store the PAT as a secret named `TARGET_REPO_TOKEN` in THIS repository:
-    #      1. Navigate to your repository on GitHub.
-    #      2. Go to Settings > Secrets and variables > Actions.
-    #      3. Click on "New repository secret".
-    #      4. Name it `TARGET_REPO_TOKEN` and paste the PAT as the value.
-    #
-    #============================
-    #
-    - name: Publish to private release repository
-      uses: softprops/action-gh-release@v2
-      with:
-        repository: Jussinevavuori/pyinstaller-ci-cd-release # TODO: Change to your target repo
-        token: ${{ secrets.TARGET_REPO_TOKEN }}
-        tag_name: ${{ steps.meta.outputs.tagName }}
-        name: ${{ steps.meta.outputs.tagName }}
-        body: "Automated build from ${{ github.repository }}@${{ github.sha }}"
-        files: |
-          dist/${{ steps.meta.outputs.executable }}
-          dist/${{ steps.meta.outputs.requirements }}
+      # Install all dependencies required for the workflow to run
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      # Build the executable using Nuitka
+      - name: Build executable witb Nuitka
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          nuitka-version: main
+          script-name: design_reactor.py
+          mode: standalone
+          output-dir: dist/design-reactor
+          follow-imports: true
+
+      # Automatically compute a version string based on the current date and GitHub run number
+      # and copy the built executable to a versioned filename.
+      #
+      # Example tagname:
+      # - design-reactor.v42.2024-06-15
+      #
+      # Example filenames:
+      # - design-reactor.v42.2024-06-15.exe
+      # - design-reactor.v42.2024-06-15.requirements.txt
+      - name: Compute version and copy binary
+        id: meta
+        run: |
+          TAG_NAME="design-reactor.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d)"
+          EXECUTABLE="${TAG_NAME}.exe"
+          REQUIREMENTS="${TAG_NAME}.requirements.txt"
+          echo "tagName=$TAG_NAME" >> "$GITHUB_OUTPUT"
+          echo "executable=$EXECUTABLE" >> "$GITHUB_OUTPUT"
+          echo "requirements=$REQUIREMENTS" >> "$GITHUB_OUTPUT"
+          cp dist/design-reactor "dist/${EXECUTABLE}"
+          cp requirements.txt "dist/${REQUIREMENTS}"
+      
+      # Upload the build sexecutable as an artifact which can be downloaded
+      # from the GitHub Actions interface later (for 30 days).
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: design-reactor-${{ github.sha }}
+          path: |
+            dist/${{ steps.meta.outputs.executable }}
+            dist/${{ steps.meta.outputs.requirements }}
+          retention-days: 30
+        
+      # Publish to a private repository as a release asset.
+      #
+      #============================
+      #
+      # TO CONFIGURE:
+      #
+      #  - Create a new target private repository to host the releases (e.g. your-org/releases)
+      #      1. Ensure it is NOT empty (must have e.g. a README.md)
+      #  - Set `repository` below to the target private repository (e.g. your-org/releases)
+      #  - Create a Personal Access Token (PAT)
+      #      1. Go to https://github.com/settings/personal-access-tokens
+      #      2. Click on "Generate new token".
+      #      3. Give a descriptive name and description.
+      #      4. Select repository access as "Only select repositories" and choose your target repo.
+      #      5. Set expiration as desired (safe to set to "Do not expire" for this use case).
+      #      6. Give "Contents" and "Pull requests" permission with "Read and write" access.
+      #      7. Click "Generate token" and copy the token (you won't see it again).
+      #  - Store the PAT as a secret named `TARGET_REPO_TOKEN` in THIS repository:
+      #      1. Navigate to your repository on GitHub.
+      #      2. Go to Settings > Secrets and variables > Actions.
+      #      3. Click on "New repository secret".
+      #      4. Name it `TARGET_REPO_TOKEN` and paste the PAT as the value.
+      #
+      #============================
+      #
+      - name: Publish to private release repository
+        uses: softprops/action-gh-release@v2
+        with:
+          repository: Jussinevavuori/pyinstaller-ci-cd-release # TODO: Change to your target repo
+          token: ${{ secrets.TARGET_REPO_TOKEN }}
+          tag_name: ${{ steps.meta.outputs.tagName }}
+          name: ${{ steps.meta.outputs.tagName }}
+          body: "Automated build from ${{ github.repository }}@${{ github.sha }}"
+          files: |
+            dist/${{ steps.meta.outputs.executable }}
+            dist/${{ steps.meta.outputs.requirements }}
+
+  ##################################################################################################
   
   # This job builds and uploads the `calibrate` executable
   build-calibrate:
-    # Use ubuntu runner with python-based container
-    #
-    # † Slim-bookworm variant uses debian:12.12 to
-    #   match the worker docker image version
+
+    # Use ubuntu runner
     runs-on: ubuntu-latest
-    container:
-      image: python:3.11-slim-bookworm     
 
-    # Checkout the repository to access the source code
+    # Job steps
     steps:
-    - uses: actions/checkout@v4
-    
-    # Install all dependencies required for the workflow to run. These include
-    # - pip (latest version)
-    # - any python dependencies listed in requirements.txt (if the file exists)
-    # - nuitka
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        pip install nuitka
-      
-    # Build the executable using zipapp
-    #
-    #============================
-    #
-    # TO CONFIGURE:
-    #
-    #  - Adjust the --main argument to your entrypoint module
-    #  - Adjust source directory as needed     
-    #
-    #============================
-    #
-    - name: Build executable
-      # TODO: Adjust main module and source directory as needed
-      run: |
-        mkdir -p dist
-        python -m nuitka . --standalone --onefile --output-dir=dist/calibrate --follow-imports --remove-output calibrate
 
-    # Automatically compute a version string based on the current date and GitHub run number
-    # and copy the built executable to a versioned filename.
-    #
-    # Example tagname:
-    # - calibrate.v42.2024-06-15
-    #
-    # Example filenames:
-    # - calibrate.v42.2024-06-15.exe
-    # - calibrate.v42.2024-06-15.requirements.txt
-    - name: Compute version and copy binary
-      id: meta
-      run: |
-        TAG_NAME="calibrate.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d)"
-        EXECUTABLE="${TAG_NAME}.exe"
-        REQUIREMENTS="${TAG_NAME}.requirements.txt"
-        echo "tagName=$TAG_NAME" >> "$GITHUB_OUTPUT"
-        echo "executable=$EXECUTABLE" >> "$GITHUB_OUTPUT"
-        echo "requirements=$REQUIREMENTS" >> "$GITHUB_OUTPUT"
-        cp dist/calibrate "dist/${EXECUTABLE}"
-        cp requirements.txt "dist/${REQUIREMENTS}"
-    
-    # Upload the build sexecutable as an artifact which can be downloaded
-    # from the GitHub Actions interface later (for 30 days).
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: calibrate-${{ github.sha }}
-        path: |
-          dist/${{ steps.meta.outputs.executable }}
-          dist/${{ steps.meta.outputs.requirements }}
-        retention-days: 30
+      # Setup Python environment
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+          architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+          cache: 'pip'
+          cache-dependency-path: |
+            **/requirements*.txt
+
+      # Checkout the repository to access the source code
+      - uses: actions/checkout@v4
       
-    # Publish to a private repository as a release asset.
-    #
-    #============================
-    #
-    # TO CONFIGURE:
-    #
-    #  - Create a new target private repository to host the releases (e.g. your-org/releases)
-    #      1. Ensure it is NOT empty (must have e.g. a README.md)
-    #  - Set `repository` below to the target private repository (e.g. your-org/releases)
-    #  - Create a Personal Access Token (PAT)
-    #      1. Go to https://github.com/settings/personal-access-tokens
-    #      2. Click on "Generate new token".
-    #      3. Give a descriptive name and description.
-    #      4. Select repository access as "Only select repositories" and choose your target repo.
-    #      5. Set expiration as desired (safe to set to "Do not expire" for this use case).
-    #      6. Give "Contents" and "Pull requests" permission with "Read and write" access.
-    #      7. Click "Generate token" and copy the token (you won't see it again).
-    #  - Store the PAT as a secret named `TARGET_REPO_TOKEN` in THIS repository:
-    #      1. Navigate to your repository on GitHub.
-    #      2. Go to Settings > Secrets and variables > Actions.
-    #      3. Click on "New repository secret".
-    #      4. Name it `TARGET_REPO_TOKEN` and paste the PAT as the value.
-    #
-    #============================
-    #
-    - name: Publish to private release repository
-      uses: softprops/action-gh-release@v2
-      with:
-        repository: Jussinevavuori/pyinstaller-ci-cd-release # TODO: Change to your target repo
-        token: ${{ secrets.TARGET_REPO_TOKEN }}
-        tag_name: ${{ steps.meta.outputs.tagName }}
-        name: ${{ steps.meta.outputs.tagName }}
-        body: "Automated build from ${{ github.repository }}@${{ github.sha }}"
-        files: |
-          dist/${{ steps.meta.outputs.executable }}
-          dist/${{ steps.meta.outputs.requirements }}
+      # Install all dependencies required for the workflow to run
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+        
+      # Build the executable using Nuitka
+      - name: Build executable with Nuitka
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          nuitka-version: main
+          script-name: calibrate.py
+          mode: standalone
+          output-dir: dist/calibrate
+          follow-imports: true
+          
+
+      # Automatically compute a version string based on the current date and GitHub run number
+      # and copy the built executable to a versioned filename.
+      #
+      # Example tagname:
+      # - calibrate.v42.2024-06-15
+      #
+      # Example filenames:
+      # - calibrate.v42.2024-06-15.exe
+      # - calibrate.v42.2024-06-15.requirements.txt
+      - name: Compute version and copy binary
+        id: meta
+        run: |
+          TAG_NAME="calibrate.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d)"
+          EXECUTABLE="${TAG_NAME}.exe"
+          REQUIREMENTS="${TAG_NAME}.requirements.txt"
+          echo "tagName=$TAG_NAME" >> "$GITHUB_OUTPUT"
+          echo "executable=$EXECUTABLE" >> "$GITHUB_OUTPUT"
+          echo "requirements=$REQUIREMENTS" >> "$GITHUB_OUTPUT"
+          cp dist/calibrate "dist/${EXECUTABLE}"
+          cp requirements.txt "dist/${REQUIREMENTS}"
+      
+      # Upload the build sexecutable as an artifact which can be downloaded
+      # from the GitHub Actions interface later (for 30 days).
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: calibrate-${{ github.sha }}
+          path: |
+            dist/${{ steps.meta.outputs.executable }}
+            dist/${{ steps.meta.outputs.requirements }}
+          retention-days: 30
+        
+      # Publish to a private repository as a release asset.
+      #
+      #============================
+      #
+      # TO CONFIGURE:
+      #
+      #  - Create a new target private repository to host the releases (e.g. your-org/releases)
+      #      1. Ensure it is NOT empty (must have e.g. a README.md)
+      #  - Set `repository` below to the target private repository (e.g. your-org/releases)
+      #  - Create a Personal Access Token (PAT)
+      #      1. Go to https://github.com/settings/personal-access-tokens
+      #      2. Click on "Generate new token".
+      #      3. Give a descriptive name and description.
+      #      4. Select repository access as "Only select repositories" and choose your target repo.
+      #      5. Set expiration as desired (safe to set to "Do not expire" for this use case).
+      #      6. Give "Contents" and "Pull requests" permission with "Read and write" access.
+      #      7. Click "Generate token" and copy the token (you won't see it again).
+      #  - Store the PAT as a secret named `TARGET_REPO_TOKEN` in THIS repository:
+      #      1. Navigate to your repository on GitHub.
+      #      2. Go to Settings > Secrets and variables > Actions.
+      #      3. Click on "New repository secret".
+      #      4. Name it `TARGET_REPO_TOKEN` and paste the PAT as the value.
+      #
+      #============================
+      #
+      - name: Publish to private release repository
+        uses: softprops/action-gh-release@v2
+        with:
+          repository: Jussinevavuori/pyinstaller-ci-cd-release # TODO: Change to your target repo
+          token: ${{ secrets.TARGET_REPO_TOKEN }}
+          tag_name: ${{ steps.meta.outputs.tagName }}
+          name: ${{ steps.meta.outputs.tagName }}
+          body: "Automated build from ${{ github.repository }}@${{ github.sha }}"
+          files: |
+            dist/${{ steps.meta.outputs.executable }}
+            dist/${{ steps.meta.outputs.requirements }}
