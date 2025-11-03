@@ -43,7 +43,7 @@ jobs:
         with:
           nuitka-version: main
           script-name: design_reactor.py
-          mode: standalone
+          mode: onefile
           output-dir: dist
           output-file: design-reactor.exe
 
@@ -150,7 +150,7 @@ jobs:
         with:
           nuitka-version: main
           script-name: calibrate.py
-          mode: standalone
+          mode: onefile
           output-dir: dist
           output-file: calibrate.exe
 
