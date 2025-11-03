@@ -17,7 +17,7 @@ jobs:
         # name:    The OS name used in the version string
         # image:   The GitHub Actions OS image to use
         os:
-          - { name: ubuntu, image: ubuntu-latest, nuitka_mode: standalone }
+          - { name: ubuntu, image: ubuntu-latest, nuitka_mode: onefile }
           - { name: macos, image: macos-latest, nuitka_mode: app }
           # - { name: windows, image: windows-latest }
         # Define the vendor scripts to build
