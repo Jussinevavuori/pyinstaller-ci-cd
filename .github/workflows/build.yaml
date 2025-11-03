@@ -79,7 +79,11 @@ jobs:
           echo "tagName=$TAG_NAME" >> "$GITHUB_OUTPUT"
           echo "executable=$EXECUTABLE" >> "$GITHUB_OUTPUT"
           echo "requirements=$REQUIREMENTS" >> "$GITHUB_OUTPUT"
-          cp dist/${{ matrix.target.base }}.cli "dist/${EXECUTABLE}"
+          if [ "${{ matrix.os.nuitka_mode }}" = "app" ]; then
+            cp "dist/${{ matrix.target.base }}.app/Contents/MacOS/${{ matrix.target.base }}.cli" "dist/${EXECUTABLE}"
+          else
+            cp "dist/${{ matrix.target.base }}.cli" "dist/${EXECUTABLE}"
+          fi
           cp requirements.txt "dist/${REQUIREMENTS}"
       
       # Upload the build sexecutable as an artifact which can be downloaded
