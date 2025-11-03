@@ -13,13 +13,16 @@ jobs:
     # Define a matrix to build each target for multiple operating systems
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        os:
+          - { name: ubuntu, image: ubuntu-latest }
+          - { name: macos, image: macos-latest }
+          - { name: windows, image: windows-latest }
         target:
           - { script: design_reactor.py, base: design-reactor }
           - { script: calibrate.py, base: calibrate }
 
-    # Use the OS from the matrix
-    runs-on: ${{ matrix.os }}
+  # Use the OS image from the matrix
+  runs-on: ${{ matrix.os.image }}
 
     # Job steps
     steps:
@@ -63,9 +66,8 @@ jobs:
       - name: Compute version and copy binary
         id: meta
         run: |
-          OS_NAME="$(echo "${{ matrix.os }}" | cut -d'-' -f1)"
           DATE_STR="$(date -u +%Y-%m-%d)"
-          TAG_NAME="${{ matrix.target.base }}.v${GITHUB_RUN_NUMBER}.${DATE_STR}.${OS_NAME}"
+          TAG_NAME="${{ matrix.target.base }}.v${GITHUB_RUN_NUMBER}.${DATE_STR}.${{ matrix.os.name }}"
           EXECUTABLE="${TAG_NAME}.cli"
           REQUIREMENTS="${TAG_NAME}.requirements.txt"
           echo "tagName=$TAG_NAME" >> "$GITHUB_OUTPUT"
