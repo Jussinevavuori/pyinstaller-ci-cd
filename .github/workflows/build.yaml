@@ -172,7 +172,7 @@ jobs:
           echo "tagName=$TAG_NAME" >> "$GITHUB_OUTPUT"
           echo "executable=$EXECUTABLE" >> "$GITHUB_OUTPUT"
           echo "requirements=$REQUIREMENTS" >> "$GITHUB_OUTPUT"
-          cp dist/calibrate.exe "dist/${EXECUTABLE}"
+          cp dist/calibrate.dist/calibrate.exe "dist/${EXECUTABLE}"
           cp requirements.txt "dist/${REQUIREMENTS}"
       
       # Upload the build sexecutable as an artifact which can be downloaded
