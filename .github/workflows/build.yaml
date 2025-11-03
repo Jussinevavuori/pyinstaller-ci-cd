@@ -48,7 +48,7 @@ jobs:
       # TODO: Adjust main module and source directory as needed
       run: |
         mkdir -p dist
-        python -m nuitka . --standalone --onefile --output-dir=dist/design-reactor --follow-imports --remove-output -m design_reactor
+        python -m nuitka . --standalone --onefile --output-dir=dist/design-reactor --follow-imports --remove-output design_reactor
 
     # Automatically compute a version string based on the current date and GitHub run number
     # and copy the built executable to a versioned filename.
@@ -158,7 +158,7 @@ jobs:
       # TODO: Adjust main module and source directory as needed
       run: |
         mkdir -p dist
-        python -m nuitka . --standalone --onefile --output-dir=dist/calibrate --follow-imports --remove-output -m calibrate
+        python -m nuitka . --standalone --onefile --output-dir=dist/calibrate --follow-imports --remove-output calibrate
 
     # Automatically compute a version string based on the current date and GitHub run number
     # and copy the built executable to a versioned filename.
