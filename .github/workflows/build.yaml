@@ -14,8 +14,13 @@ jobs:
   # This job builds and uploads the `design-reactor` executable
   build-design-reactor:
 
-    # Use ubuntu runner
-    runs-on: ubuntu-latest
+    # Define a matrix to build on multiple operating systems
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+
+    # Use the OS from the matrix
+    runs-on: ${{ matrix.os }}
 
     # Job steps
     steps:
@@ -38,34 +43,36 @@ jobs:
           pip install -r requirements.txt
 
       # Build the executable using Nuitka
-      - name: Build executable witb Nuitka
+      - name: Build executable with Nuitka
         uses: Nuitka/Nuitka-Action@main
         with:
           nuitka-version: main
           script-name: design_reactor.py
           mode: onefile
           output-dir: dist
-          output-file: design-reactor.exe
+          output-file: design-reactor.cli
 
       # Automatically compute a version string based on the current date and GitHub run number
       # and copy the built executable to a versioned filename.
       #
       # Example tagname:
-      # - design-reactor.v42.2024-06-15
+      # - design-reactor.v42.2024-06-15.ubuntu
       #
       # Example filenames:
-      # - design-reactor.v42.2024-06-15.exe
-      # - design-reactor.v42.2024-06-15.requirements.txt
+      # - design-reactor.v42.2024-06-15.ubuntu.cli
+      # - design-reactor.v42.2024-06-15.ubuntu.requirements.txt
       - name: Compute version and copy binary
         id: meta
         run: |
-          TAG_NAME="design-reactor.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d)"
-          EXECUTABLE="${TAG_NAME}.exe"
+          OS_NAME="$(echo "${{ matrix.os }}" | cut -d'-' -f1)"
+          DATE_STR="$(date -u +%Y-%m-%d)"
+          TAG_NAME="design-reactor.v${GITHUB_RUN_NUMBER}.${DATE_STR}.${OS_NAME}"
+          EXECUTABLE="${TAG_NAME}.cli"
           REQUIREMENTS="${TAG_NAME}.requirements.txt"
           echo "tagName=$TAG_NAME" >> "$GITHUB_OUTPUT"
           echo "executable=$EXECUTABLE" >> "$GITHUB_OUTPUT"
           echo "requirements=$REQUIREMENTS" >> "$GITHUB_OUTPUT"
-          cp dist/design-reactor.exe "dist/${EXECUTABLE}"
+          cp dist/design-reactor.cli "dist/${EXECUTABLE}"
           cp requirements.txt "dist/${REQUIREMENTS}"
       
       # Upload the build sexecutable as an artifact which can be downloaded
@@ -121,8 +128,13 @@ jobs:
   # This job builds and uploads the `calibrate` executable
   build-calibrate:
 
-    # Use ubuntu runner
-    runs-on: ubuntu-latest
+    # Define a matrix to build on multiple operating systems
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+
+    # Use the OS from the matrix
+    runs-on: ${{ matrix.os }}
 
     # Job steps
     steps:
@@ -152,27 +164,29 @@ jobs:
           script-name: calibrate.py
           mode: onefile
           output-dir: dist
-          output-file: calibrate.exe
+          output-file: calibrate.cli
 
       # Automatically compute a version string based on the current date and GitHub run number
       # and copy the built executable to a versioned filename.
       #
       # Example tagname:
-      # - calibrate.v42.2024-06-15
+      # - calibrate.v42.2024-06-15.ubuntu
       #
       # Example filenames:
-      # - calibrate.v42.2024-06-15.exe
-      # - calibrate.v42.2024-06-15.requirements.txt
+      # - calibrate.v42.2024-06-15.ubuntu.cli
+      # - calibrate.v42.2024-06-15.ubuntu.requirements.txt
       - name: Compute version and copy binary
         id: meta
         run: |
-          TAG_NAME="calibrate.v${GITHUB_RUN_NUMBER}.$(date -u +%Y-%m-%d)"
-          EXECUTABLE="${TAG_NAME}.exe"
+          OS_NAME="$(echo "${{ matrix.os }}" | cut -d'-' -f1)"
+          DATE_STR="$(date -u +%Y-%m-%d)"
+          TAG_NAME="calibrate.v${GITHUB_RUN_NUMBER}.${DATE_STR}.${OS_NAME}"
+          EXECUTABLE="${TAG_NAME}.cli"
           REQUIREMENTS="${TAG_NAME}.requirements.txt"
           echo "tagName=$TAG_NAME" >> "$GITHUB_OUTPUT"
           echo "executable=$EXECUTABLE" >> "$GITHUB_OUTPUT"
           echo "requirements=$REQUIREMENTS" >> "$GITHUB_OUTPUT"
-          cp dist/calibrate.exe "dist/${EXECUTABLE}"
+          cp dist/calibrate.cli "dist/${EXECUTABLE}"
           cp requirements.txt "dist/${REQUIREMENTS}"
       
       # Upload the build sexecutable as an artifact which can be downloaded
