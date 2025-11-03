@@ -79,7 +79,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.target.base }}-${{ github.sha }}
+          name: ${{ matrix.target.base }}-${{ matrix.os }}-${{ github.sha }}
           path: |
             dist/${{ steps.meta.outputs.executable }}
             dist/${{ steps.meta.outputs.requirements }}
