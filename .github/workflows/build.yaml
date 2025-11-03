@@ -44,8 +44,8 @@ jobs:
           nuitka-version: main
           script-name: design_reactor.py
           mode: standalone
-          output-dir: dist/design-reactor
-          follow-imports: true
+          output-dir: dist
+          output-file: design-reactor.exe
 
       # Automatically compute a version string based on the current date and GitHub run number
       # and copy the built executable to a versioned filename.
@@ -65,7 +65,7 @@ jobs:
           echo "tagName=$TAG_NAME" >> "$GITHUB_OUTPUT"
           echo "executable=$EXECUTABLE" >> "$GITHUB_OUTPUT"
           echo "requirements=$REQUIREMENTS" >> "$GITHUB_OUTPUT"
-          cp dist/design-reactor "dist/${EXECUTABLE}"
+          cp dist/design-reactor.exe "dist/${EXECUTABLE}"
           cp requirements.txt "dist/${REQUIREMENTS}"
       
       # Upload the build sexecutable as an artifact which can be downloaded
@@ -151,9 +151,8 @@ jobs:
           nuitka-version: main
           script-name: calibrate.py
           mode: standalone
-          output-dir: dist/calibrate
-          follow-imports: true
-          
+          output-dir: dist
+          output-file: calibrate.exe
 
       # Automatically compute a version string based on the current date and GitHub run number
       # and copy the built executable to a versioned filename.
@@ -173,7 +172,7 @@ jobs:
           echo "tagName=$TAG_NAME" >> "$GITHUB_OUTPUT"
           echo "executable=$EXECUTABLE" >> "$GITHUB_OUTPUT"
           echo "requirements=$REQUIREMENTS" >> "$GITHUB_OUTPUT"
-          cp dist/calibrate "dist/${EXECUTABLE}"
+          cp dist/calibrate.exe "dist/${EXECUTABLE}"
           cp requirements.txt "dist/${REQUIREMENTS}"
       
       # Upload the build sexecutable as an artifact which can be downloaded
