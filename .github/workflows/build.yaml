@@ -17,8 +17,8 @@ jobs:
         # name:    The OS name used in the version string
         # image:   The GitHub Actions OS image to use
         os:
-          - { name: ubuntu, image: ubuntu-latest, nuitka_mode: onefile }
-          - { name: macos, image: macos-latest, nuitka_mode: app }
+          - { name: ubuntu, image: ubuntu-latest }
+          - { name: macos, image: macos-latest }
           # - { name: windows, image: windows-latest }
         # Define the vendor scripts to build
         # script:  The python entry point to build
@@ -56,7 +56,7 @@ jobs:
         with:
           nuitka-version: main
           script-name: ${{ matrix.target.script }}
-          mode: ${{ matrix.os.nuitka_mode }}
+          mode: onefile
           output-dir: dist
           output-file: ${{ matrix.target.base }}.cli
 
@@ -79,11 +79,7 @@ jobs:
           echo "tagName=$TAG_NAME" >> "$GITHUB_OUTPUT"
           echo "executable=$EXECUTABLE" >> "$GITHUB_OUTPUT"
           echo "requirements=$REQUIREMENTS" >> "$GITHUB_OUTPUT"
-          if [ "${{ matrix.os.nuitka_mode }}" = "app" ]; then
-            cp "dist/${{ matrix.target.base }}.app/Contents/MacOS/${{ matrix.target.base }}.cli" "dist/${EXECUTABLE}"
-          else
-            cp "dist/${{ matrix.target.base }}.cli" "dist/${EXECUTABLE}"
-          fi
+          cp "dist/${{ matrix.target.base }}.cli" "dist/${EXECUTABLE}"
           cp requirements.txt "dist/${REQUIREMENTS}"
       
       # Upload the build sexecutable as an artifact which can be downloaded
