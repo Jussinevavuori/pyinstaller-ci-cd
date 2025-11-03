@@ -27,6 +27,7 @@ jobs:
           python-version: '3.14'
           architecture: 'x64'
           cache: 'pip'
+          cache-dependency-path: requirements.txt
 
       # Checkout the repository to access the source code
       - uses: actions/checkout@v4
@@ -133,6 +134,7 @@ jobs:
           python-version: '3.14'
           architecture: 'x64'
           cache: 'pip'
+          cache-dependency-path: requirements.txt
 
       # Checkout the repository to access the source code
       - uses: actions/checkout@v4
