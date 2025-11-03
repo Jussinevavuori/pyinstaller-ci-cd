@@ -20,6 +20,9 @@ jobs:
     # Job steps
     steps:
 
+      # Checkout the repository to access the source code
+      - uses: actions/checkout@v4
+
       # Setup Python environment
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -28,9 +31,6 @@ jobs:
           architecture: 'x64'
           cache: 'pip'
           cache-dependency-path: requirements.txt
-
-      # Checkout the repository to access the source code
-      - uses: actions/checkout@v4
       
       # Install all dependencies required for the workflow to run
       - name: Install dependencies
@@ -127,6 +127,9 @@ jobs:
     # Job steps
     steps:
 
+      # Checkout the repository to access the source code
+      - uses: actions/checkout@v4
+
       # Setup Python environment
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -135,9 +138,6 @@ jobs:
           architecture: 'x64'
           cache: 'pip'
           cache-dependency-path: requirements.txt
-
-      # Checkout the repository to access the source code
-      - uses: actions/checkout@v4
       
       # Install all dependencies required for the workflow to run
       - name: Install dependencies
